@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Router</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue-router@4"></script>
+    <style>
+        .container {
+            display: flex;
+            min-height: calc(100vh - 50px);
+        }
+        .nav {
+            display: flex;
+            justify-content: space-around;
+            background-color: #ADD8E6; 
+            padding: 10px;
+            list-style-type: none;
+            margin: 0;
+            font-size: 20px;
+            font-weight: bold;
+            color: black;
+            border-bottom: 1px solid #ccc;
+            height: 30px;
+        }
+        .nav a {
+            text-decoration: none;  
+            color: #000;           
+        }
+        .nav a:hover {
+            color: #666;         
+        }
+        .nav a.router-link-active {
+            color: #000;        
+            font-weight: bold;    
+        }
+        .leftBar, .rightBar {
+            border: black solid 1px;
+            width: 400px;
+        }
+        .leftBar img, .rightBar img {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .centerBar {
+            width: 1000px;
+            border: black solid 1px;
+        }
+        .grid-container {
+            margin: 10px;
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            height: 100px;
+            
+        }
+
+        .grid-item {
+            background-color: #FFE4B5;
+            padding: 15px;
+            text-align: left;
+            font-size: 16px;
+            border: 1px solid white;
+        }
+
+        .back-link {
+            margin-top: 70px;
+            margin-left: 20px;
+        }
+
+        .back-link a {
+            color: blue;
+            text-decoration: none;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="nav">
+            <router-link to="/">主页</router-link>
+            <router-link to="/organization">组织机构</router-link>
+            <router-link to="/department">院部设置</router-link>
+            <router-link to="/faculty">师资队伍</router-link>
+            <router-link to="/service">公共服务</router-link>
+        </div>
+        <div class="container">
+            <router-view name="leftBar" class="leftBar"></router-view>
+            <router-view name="centerBar" class="centerBar"></router-view>
+            <router-view name="rightBar" class="rightBar"></router-view>
+        </div>
+    </div>
+
+    <script>
+        const Home_left = {
+            template: `
+                <div>
+                    <img src="2.png" alt="左侧图片">
+                </div>
+            `
+        }
+
+        const Home_right = {
+            template: `
+                <div>
+                    <img src="1.png" alt="右侧图片">
+                </div>
+            `
+        }
+
+        const Home_center = {
+            template: '<div>欢迎访问主页</div>'
+        }
+
+        const TableComponent = {
+    template: `
+        <div>
+            <div class="grid-container">
+                <div v-for="item in tableData" class="grid-item">
+                    {{ item }}
+                </div>
+            </div>
+            <div class="back-link">
+                <router-link to="/">返回主页</router-link>
+            </div>
+        </div>
+    `,
+    data() {
+        return {
+            tableData: []
+        }
+    },
+    created() {
+        if (this.$route.path.includes('organization')) {
+            this.tableData = [
+                "科技处", "教务处", "财务处",
+                "学生处", "后勤处", "人事处",
+                "工会", "组织部"
+            ]
+        } else if (this.$route.path.includes('department')) {
+            this.tableData = [
+                "信控学院", "土木学院", "机车学院",
+                "建筑学院", "环境学院", "理学院",
+                "管理学院", "商学院", "人外学院"
+            ]
+        }
+            }
+        }
+
+        const TeacherList = {
+            template: `
+                <div>
+                    <div style="display: flex; flex-wrap: wrap;">
+                        <div v-for="teacher in teachers" 
+                            @click="showTeacher(teacher)"
+                            style="cursor: pointer; color: purple; margin: 10px;">
+                            {{ teacher.name }}
+                        </div>
+                    </div>
+                    <router-view></router-view>
+                </div>
+            `,
+            data() {
+                return {
+                    teachers: [
+                        {name: '张三', info:'博士，教授，博士生导师......'},
+                        {name: '李四', info:'博士，教授，硕士生导师......'},
+                        {name: '王五', info:'博士，教授，硕士生导师......'},
+                        {name: '李白', info:'博士，教授，硕士生导师......'},
+                        {name: '孔子', info:'博士，教授，硕士生导师......'},
+                        {name: '孟子', info:'博士，教授，硕士生导师......'},
+                        {name: '墨子', info:'博士，教授，硕士生导师......'},
+                        {name: '鬼谷子', info:'博士，教授，硕士生导师......'}
+                    ]
+                }
+            },
+            methods: {
+                showTeacher(teacher) {
+                    this.$router.push(`/faculty/${teacher.name}`)
+                }
+            }
+        }
+
+        const Teacher = {
+            template: `
+                <div style="border: 1px solid black; padding: 20px; margin-top: 20px;">
+                    <h3 style="color: red;">{{ $route.params.name }}</h3>
+                    <p>{{ getTeacherInfo }}</p>
+                </div>
+            `,
+            computed: {
+                getTeacherInfo() {
+                    const teacher = this.$parent.teachers.find(t => t.name === this.$route.params.name)
+                    return teacher ? teacher.info : '未找到该教师信息'
+                }
+            }
+        }
+        const routes = [
+            {
+                path: '/',
+                components: {
+                    leftBar: Home_left,
+                    centerBar: Home_center,
+                    rightBar: Home_right
+                }
+            },
+            {
+                path: '/organization',
+                components: {
+                    leftBar: Home_left,
+                    centerBar: TableComponent,
+                    rightBar: Home_right
+                }
+            },
+            {
+                path: '/department',
+                components: {
+                    leftBar: Home_left,
+                    centerBar: TableComponent,
+                    rightBar: Home_right
+                }
+            },
+            {
+                path: '/faculty',
+                components: {
+                    leftBar: Home_left,
+                    centerBar: TeacherList,
+                    rightBar: Home_right
+                },
+                children: [
+                    {
+                        path: ':name',
+                        component: Teacher
+                    }
+                ]
+            },
+            {
+                path: '/service',
+                components: {
+                    leftBar: Home_left,
+                    centerBar: Home_center,
+                    rightBar: Home_right
+                }
+            }
+        ]
+
+        const router = VueRouter.createRouter({
+            history: VueRouter.createWebHashHistory(),
+            routes
+        })
+
+        const app = Vue.createApp({})
+        app.use(router)
+        app.mount('#app')
+    </script>
+</body>
+</html>
