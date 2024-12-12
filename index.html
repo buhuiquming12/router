@@ -159,7 +159,7 @@
         }
     }
 
-        const TeacherList = {
+    const TeacherList = {
             template: `
                 <div>
                     <div style="display: flex; flex-wrap: wrap;">
@@ -169,7 +169,7 @@
                             {{ teacher.name }}
                         </div>
                     </div>
-                    <router-view></router-view>
+                    <router-view :teachers="teachers"></router-view>
                 </div>
             `,
             data() {
@@ -200,10 +200,11 @@
                     <p>{{ getTeacherInfo }}</p>
                 </div>
             `,
+            props: ['teachers'],
             computed: {
                 getTeacherInfo() {
-                    const teacher = this.$parent.teachers.find(t => t.name === this.$route.params.name)
-                    return teacher ? teacher.info : '未找到该教师信息'
+                    const teacher = this.teachers.find(t => t.name === this.$route.params.name);
+                    return teacher ? teacher.info : '未找到该教师信息';
                 }
             }
         }
@@ -242,7 +243,7 @@
                 children: [
                     {
                         path: ':name',
-                        component: Teacher
+                        component: Teacher,
                     }
                 ]
             },
