@@ -47,23 +47,26 @@
             border: black solid 1px;
         }
         .grid-container {
-            margin: 10px;
+            margin: 20px ;
             display: grid;
-            grid-template-columns: repeat(3, 100px);
-            height: 100px;
-            
+            grid-template-columns: repeat(3, 1fr);
+            width: 600px;
         }
 
         .grid-item {
-            background-color: #FFE4B5;
-            padding: 15px;
-            text-align: left;
-            font-size: 16px;
-            border: 1px solid white;
+            background-color: #FFD700;
+            height: 150px;
+            padding: 20px;
+            text-align: center;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #fff;
         }
 
         .back-link {
-            margin-top: 70px;
+            
             margin-left: 20px;
         }
 
@@ -73,6 +76,26 @@
         }
 
         .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .teacher-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            padding: 20px;
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        .teacher-link {
+            color: purple;
+            text-decoration: none;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .teacher-link:hover {
             text-decoration: underline;
         }
     </style>
@@ -111,64 +134,73 @@
         }
 
         const Home_center = {
-            template: '<div>欢迎访问主页</div>'
+            template: '<div>主页面</div>'
         }
 
         const TableComponent = {
-    template: `
-        <div>
-            <div class="grid-container">
-                <div v-for="item in tableData" class="grid-item">
-                    {{ item }}
-                </div>
-            </div>
-            <div class="back-link">
-                <router-link to="/">返回主页</router-link>
-            </div>
-        </div>
-    `,
-    data() {
-        return {
-            tableData: []
-        }
-    },
-    created() {
-        this.updateTableData();
-    },
-    watch: {
-        '$route'(to) {
-            this.updateTableData();
-        }
-    },
-    methods: {
-        updateTableData() {
-                const routeName = this.$route.params.name;
-                if (routeName === 'organization') {
-                    this.tableData = [
-                        "科技处", "教务处", "财务处",
-                        "学生处", "后勤处", "人事处",
-                        "工会", "组织部"
-                    ];
-                } else if (routeName === 'department') {
-                    this.tableData = [
-                        "信控学院", "土木学院", "机车学院",
-                        "建筑学院", "环境学院", "理学院",
-                        "管理学院", "商学院", "人外学院"
-                    ];
-                }
-            }   
-        }
-    }
-
-    const TeacherList = {
             template: `
                 <div>
-                    <div style="display: flex; flex-wrap: wrap;">
-                        <div v-for="teacher in teachers" 
-                            @click="showTeacher(teacher)"
-                            style="cursor: pointer; color: purple; margin: 10px;">
-                            {{ teacher.name }}
+                    <div class="grid-container">
+                        <div v-for="(item, index) in flatTableData" 
+                             :key="index"
+                             class="grid-item">
+                            {{ item }}
                         </div>
+                    </div>
+                    <div class="back-link">
+                        <router-link to="/">返回主页</router-link>
+                    </div>
+                </div>
+            `,
+            data() {
+                return {
+                    tableData: []
+                }
+            },
+            computed: {
+                flatTableData() {
+                    return this.tableData.flat();
+                }
+            },
+            created() {
+                this.updateTableData();
+            },
+            watch: {
+                '$route'(to) {
+                    this.updateTableData();
+                }
+            },
+            methods: {
+                updateTableData() {
+                    const routeName = this.$route.params.name;
+                    if (routeName === 'organization') {
+                        this.tableData = [
+                            ["科技处", "教务处", "财务处"],
+                            ["学生处", "后勤处", "人事处"],
+                            ["工会", "组织部", " "]
+                        ];
+                    } else if (routeName === 'department') {
+                        this.tableData = [
+                            ["信控学院", "土木学院", "机车学院"],
+                            ["建筑学院", "环境学院", "理学院"],
+                            ["管理学院", "商学院", "人外学院"]
+                        ];
+                    }
+                }   
+            }
+        }
+
+        const TeacherList = {
+            template: `
+                <div>
+                    <div class="teacher-grid">
+                        <router-link 
+                            v-for="teacher in teachers" 
+                            :key="teacher.name"
+                            :to="'/faculty/' + teacher.name"
+                            class="teacher-link">
+                            {{ teacher.name }}
+                        </router-link>
                     </div>
                     <router-view :teachers="teachers"></router-view>
                 </div>
@@ -185,11 +217,6 @@
                         {name: '墨子', info:'博士，教授，硕士生导师......'},
                         {name: '鬼谷子', info:'博士，教授，硕士生导师......'}
                     ]
-                }
-            },
-            methods: {
-                showTeacher(teacher) {
-                    this.$router.push(`/faculty/${teacher.name}`)
                 }
             }
         }
